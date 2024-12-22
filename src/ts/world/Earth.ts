@@ -1,5 +1,5 @@
 import {
-  BufferGeometry, Color, DoubleSide, Group, Material, Mesh, MeshBasicMaterial,
+  BufferGeometry, Color, Group, Material, Mesh, MeshBasicMaterial,
   Object3D,
   Points, PointsMaterial, ShaderMaterial,
   SphereBufferGeometry, Sprite, SpriteMaterial, Texture, TextureLoader
@@ -9,7 +9,7 @@ import html2canvas from "html2canvas";
 
 import earthVertex from '../../shaders/earth/vertex.vs';
 import earthFragment from '../../shaders/earth/fragment.fs';
-import { createAnimateLine, getCirclePoints, lon2xyz } from "../Utils/common";
+import { lon2xyz } from "../Utils/common";
 import gsap from "gsap";
 import { flyArc } from "../Utils/arc";
 
@@ -149,9 +149,7 @@ export default class earth {
     return new Promise(async (resolve) => {
 
       this.createEarth(); // 创建地球
-      this.createEarthGlow() // 创建地球辉光
       await this.createSpriteLabel() // 创建标签
-      this.createAnimateCircle() // 创建环绕卫星
       this.createFlyLine() // 创建飞线
 
       this.show()
@@ -200,27 +198,6 @@ export default class earth {
 
   }
 
-  createEarthGlow() {
-    const R = this.options.earth.radius; //地球半径
-
-    // TextureLoader创建一个纹理加载器对象，可以加载图片作为纹理贴图
-    const texture = this.options.textures.glow; // 加载纹理贴图
-
-    // 创建精灵材质对象SpriteMaterial
-    const spriteMaterial = new SpriteMaterial({
-      map: texture, // 设置精灵纹理贴图
-      color: 0x4390d1,
-      transparent: true, //开启透明
-      opacity: 0.7, // 可以通过透明度整体调节光圈
-      depthWrite: false, //禁止写入深度缓冲区数据
-    });
-
-    // 创建表示地球光圈的精灵模型
-    const sprite = new Sprite(spriteMaterial);
-    sprite.scale.set(R * 3.0, R * 3.0, 1); //适当缩放精灵
-    this.earthGroup.add(sprite);
-  }
-
   async createSpriteLabel() {
     await Promise.all(this.options.data.map(async item => {
       let cityArry = [];
@@ -250,96 +227,6 @@ export default class earth {
         this.earth.add(sprite);
       }))
     }))
-  }
-
-  createAnimateCircle() {
-    // 创建 圆环 点
-    const list = getCirclePoints({
-      radius: this.options.earth.radius + 15,
-      number: 150, //切割数
-      closed: true, // 闭合
-    });
-    const mat = new MeshBasicMaterial({
-      color: "#0c3172",
-      transparent: true,
-      opacity: 0.4,
-      side: DoubleSide,
-    });
-    const line = createAnimateLine({
-      pointList: list,
-      material: mat,
-      number: 100,
-      radius: 0.1,
-    });
-    this.earthGroup.add(line);
-
-    // 在clone两条线出来
-    const l2 = line.clone();
-    l2.scale.set(1.2, 1.2, 1.2);
-    l2.rotateZ(Math.PI / 6);
-    this.earthGroup.add(l2);
-
-    const l3 = line.clone();
-    l3.scale.set(0.8, 0.8, 0.8);
-    l3.rotateZ(-Math.PI / 6);
-    this.earthGroup.add(l3);
-
-    /**
-     * 旋转的球
-     */
-    const ball = new Mesh(
-      new SphereBufferGeometry(this.options.satellite.size, 32, 32),
-      new MeshBasicMaterial({
-        color: "#e0b187", // 745F4D
-      })
-    );
-
-    const ball2 = new Mesh(
-      new SphereBufferGeometry(this.options.satellite.size, 32, 32),
-      new MeshBasicMaterial({
-        color: "#628fbb", // 324A62
-      })
-    );
-
-    const ball3 = new Mesh(
-      new SphereBufferGeometry(this.options.satellite.size, 32, 32),
-      new MeshBasicMaterial({
-        color: "#806bdf", //6D5AC4
-      })
-    );
-
-    this.circleLineList.push(line, l2, l3);
-    ball.name = ball2.name = ball3.name = "卫星";
-
-    for (let i = 0; i < this.options.satellite.number; i++) {
-      const ball01 = ball.clone();
-      // 一根线上总共有几个球，根据数量平均分布一下
-      const num = Math.floor(list.length / this.options.satellite.number)
-      ball01.position.set(
-        list[num * (i + 1)][0] * 1,
-        list[num * (i + 1)][1] * 1,
-        list[num * (i + 1)][2] * 1
-      );
-      line.add(ball01);
-
-      const ball02 = ball2.clone();
-      const num02 = Math.floor(list.length / this.options.satellite.number)
-      ball02.position.set(
-        list[num02 * (i + 1)][0] * 1,
-        list[num02 * (i + 1)][1] * 1,
-        list[num02 * (i + 1)][2] * 1
-      );
-      l2.add(ball02);
-
-      const ball03 = ball2.clone();
-      const num03 = Math.floor(list.length / this.options.satellite.number)
-      ball03.position.set(
-        list[num03 * (i + 1)][0] * 1,
-        list[num03 * (i + 1)][1] * 1,
-        list[num03 * (i + 1)][2] * 1
-      );
-      l3.add(ball03);
-    }
   }
 
   createFlyLine() {
