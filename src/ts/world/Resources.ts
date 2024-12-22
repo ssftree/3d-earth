@@ -29,6 +29,7 @@ export class Resources {
     }
     // 加载完成
     this.manager.onLoad = () => {
+      console.log('加载完成')
       this.callback()
     }
     // 正在进行中
@@ -50,6 +51,9 @@ export class Resources {
     resources.textures?.forEach((item) => {
       this.textureLoader.load(item.url, (t) => {
         this.textures[item.name] = t
+        console.log(`Loaded texture: ${item.name}`)
+      }, undefined, (error) => {
+        console.error(`Error loading texture: ${item.url}`, error)
       })
     })
   }

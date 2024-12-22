@@ -12,7 +12,7 @@ export interface IResources {
   textures?: ITextures[],
 }
 
-const filePath = './images/earth/'
+const filePath = './static/images/earth/'
 const fileSuffix = [
   'gradient',
   'redCircle',
@@ -20,7 +20,8 @@ const fileSuffix = [
   "aperture",
   'glow',
   'light_column',
-  'aircraft'
+  'aircraft',
+  'flight'
 ]
 
 const textures = fileSuffix.map(item => {

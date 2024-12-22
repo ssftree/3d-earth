@@ -250,6 +250,22 @@ export default class earth {
 
         this.flyLineArcGroup.add(arcline); // 飞线插入flyArcGroup中
         this.flyLineArcGroup.userData['flyLineArray'].push(arcline.userData['flyLine'])
+
+        // 添加飞机 emoji
+        const planeTexture = this.options.textures.aircraft; // 使用加载的 flight 纹理
+        // console.log(planeTexture);
+        const planeMaterial = new SpriteMaterial({
+          map: planeTexture,
+          transparent: true,
+        });
+        const planeSprite = new Sprite(planeMaterial);
+        planeSprite.position.set(
+          (cities.startArray.E + item.E) / 2, // 计算中间位置
+          (cities.startArray.N + item.N) / 2,
+          0 // 根据需要设置 Z 轴位置
+        );
+        planeSprite.scale.set(0.5, 0.5, 1); // 根据需要调整大小
+        this.flyLineArcGroup.add(planeSprite); // 将飞机 emoji 添加到飞线组中
       });
 
     })
